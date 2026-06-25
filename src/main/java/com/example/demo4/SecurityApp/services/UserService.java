@@ -8,7 +8,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-@Service
+//@Service -->  Will not create bean and hence now the UserDetailService is going to be implemented by inMemoryUserDetailsManager
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
@@ -19,4 +19,6 @@ public class UserService implements UserDetailsService {
         return userRepository.findByEmail(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email: "+ username + " not found."));
     }
+
+
 }
