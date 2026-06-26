@@ -1,8 +1,12 @@
 package com.example.demo4.SecurityApp.config;
 
+import com.example.demo4.SecurityApp.filters.JwtAuthFilter;
+import io.jsonwebtoken.Jwt;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,22 +19,27 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
+
+    private final JwtAuthFilter jwtAuthFilter;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
             httpSecurity
                     .authorizeHttpRequests(auth -> auth
                             .requestMatchers("/posts","/auth/**").permitAll()
-                            .requestMatchers("/posts/**").hasAnyRole("ADMIN")
+//                            .requestMatchers("/posts/**").hasAnyRole("ADMIN")
                             .anyRequest().authenticated())
                     .csrf(csrfConfig-> csrfConfig.disable())
                     .sessionManagement(sessionConfig -> sessionConfig
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .formLogin(Customizer.withDefaults());
+                    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+//                    .formLogin(Customizer.withDefaults());
 
             //Won't be needing forms since we are going to use JWT with stateless sessions
             // If you run the App and the form keeps on coming even after the login Creds are correct
@@ -63,10 +72,5 @@ public class WebSecurityConfig {
 //
 //        return new InMemoryUserDetailsManager(normalUser,adminUser);
 //    }
-
-    @Bean
-    PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder();
-    }
 
 }
