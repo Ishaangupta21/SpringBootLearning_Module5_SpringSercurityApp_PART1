@@ -2,7 +2,9 @@ package com.example.demo4.SecurityApp.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -22,7 +24,7 @@ public class WebSecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
             httpSecurity
                     .authorizeHttpRequests(auth -> auth
-                            .requestMatchers("/posts").permitAll()
+                            .requestMatchers("/posts","/auth/**").permitAll()
                             .requestMatchers("/posts/**").hasAnyRole("ADMIN")
                             .anyRequest().authenticated())
                     .csrf(csrfConfig-> csrfConfig.disable())
@@ -36,25 +38,31 @@ public class WebSecurityConfig {
         return httpSecurity.build();
     }
 
+    @Bean
+    AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
+    }
+
     // This Bean uses UserBuilder to give two Users to be stored in Memory using the InMemoryUserDetailsManager()
     //Only useful for testing purposes
     //In production we store these login info in databases
-    @Bean
-    UserDetailsService myInMemoryUserDetailService(){
-        UserDetails normalUser = User
-                .withUsername("Ishaan")
-                .password(passwordEncoder().encode("password"))
-                .roles("USER")
-                .build();
-
-        UserDetails adminUser = User
-                .withUsername("Admin")
-                .password(passwordEncoder().encode("admin"))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(normalUser,adminUser);
-    }
+    // *** This will be removed since we are now creating the user by SignUp Method***
+//    @Bean
+//    UserDetailsService myInMemoryUserDetailService(){
+//        UserDetails normalUser = User
+//                .withUsername("Ishaan")
+//                .password(passwordEncoder().encode("password"))
+//                .roles("USER")
+//                .build();
+//
+//        UserDetails adminUser = User
+//                .withUsername("Admin")
+//                .password(passwordEncoder().encode("admin"))
+//                .roles("ADMIN")
+//                .build();
+//
+//        return new InMemoryUserDetailsManager(normalUser,adminUser);
+//    }
 
     @Bean
     PasswordEncoder passwordEncoder(){
