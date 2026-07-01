@@ -1,6 +1,7 @@
 package com.example.demo4.SecurityApp.config;
 
 import com.example.demo4.SecurityApp.filters.JwtAuthFilter;
+import com.example.demo4.SecurityApp.handlers.OAuth2SuccessHandler;
 import io.jsonwebtoken.Jwt;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class WebSecurityConfig {
 
     private final JwtAuthFilter jwtAuthFilter;
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
 
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
@@ -38,7 +40,11 @@ public class WebSecurityConfig {
                     .csrf(csrfConfig-> csrfConfig.disable())
                     .sessionManagement(sessionConfig -> sessionConfig
                             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
+                    .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
+                    .oauth2Login(oauth2Config -> oauth2Config
+                            .failureUrl("/login?error=true")
+                            .successHandler(oAuth2SuccessHandler)
+                    );
 //                    .formLogin(Customizer.withDefaults());
 
             //Won't be needing forms since we are going to use JWT with stateless sessions
