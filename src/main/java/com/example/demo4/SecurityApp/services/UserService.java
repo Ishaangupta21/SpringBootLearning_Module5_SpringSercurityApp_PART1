@@ -32,9 +32,10 @@ public class UserService implements UserDetailsService {
                 .orElseThrow(() -> new BadCredentialsException("User with email: "+ username + " not found."));
     }
 
-    public User findUserById(Long usedId){
-        return userRepository.findById(usedId).orElseThrow(()->new ResourceNotFoundException("User with id: "+ usedId+ "not found."));
+    public User findUserById(Long userId){
+        return userRepository.findById(userId).orElseThrow(()->new ResourceNotFoundException("User with id: "+ userId+ "not found."));
     }
+
 
 
     public UserDTO signUp(SignupDTO signupDTO) {
